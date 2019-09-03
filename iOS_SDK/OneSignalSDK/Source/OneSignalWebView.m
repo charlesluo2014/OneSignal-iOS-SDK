@@ -42,8 +42,8 @@ UIViewController *viewControllerForPresentation;
 -(void)viewDidLoad {
     [super viewDidLoad];
     
-    _webView = [UIWebView new];
-    _webView.delegate = self;
+    _webView = [WKWebView new];
+    _webView.navigationDelegate = self;
     [self.view addSubview:_webView];
     
     [self pinSubviewToMarginsWithSubview:_webView withSuperview:self.view];
@@ -73,17 +73,29 @@ UIViewController *viewControllerForPresentation;
     }];
 }
 
--(void)webViewDidStartLoad:(UIWebView *)webView {
+-(void)webView:(WKWebView *)webView didCommitNavigation:(null_unspecified WKNavigation *)navigation {
     [_uiBusy startAnimating];
 }
 
--(void)webViewDidFinishLoad:(UIWebView *)webView {
-    self.title = [_webView stringByEvaluatingJavaScriptFromString:@"document.title"];
-    self.navigationController.title = self.title;
+-(void)webView:(WKWebView *)webView didFinishNavigation:(null_unspecified WKNavigation *)navigation {
+     [_webView evaluateJavaScript:@"document.title" completionHandler:^(id result, NSError * _Nullable error) {
+         if (error == nil) {
+             if (result != nil) {
+                self.title  = [NSString stringWithFormat:@"%@", result];
+                self.navigationController.title = self.title;
+             }
+         } else {
+             NSLog(@"evaluateJavaScript error : %@", error.localizedDescription);
+         }
+    }];
+   
     [_uiBusy stopAnimating];
 }
 
--(void)webView:(UIWebView *)webView didFailLoadWithError:(NSError *)error {
+-(void)webView:(WKWebView *)webView didFailNavigation:(null_unspecified WKNavigation *)navigation withError:(NSError *)error {
+    [OneSignal onesignal_Log:ONE_S_LL_ERROR message:error.localizedDescription];
+}
+-(void)webView:(WKWebView *)webView didFailProvisionalNavigation:(null_unspecified WKNavigation *)navigation withError:(NSError *)error {
     [OneSignal onesignal_Log:ONE_S_LL_ERROR message:error.localizedDescription];
 }
 

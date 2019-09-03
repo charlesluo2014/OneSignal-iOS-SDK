@@ -26,11 +26,11 @@
  */
 
 #import <UIKit/UIKit.h>
-
-@interface OneSignalWebView : UIViewController <UIWebViewDelegate>
+#import <WebKit/WebKit.h>
+@interface OneSignalWebView : UIViewController <WKNavigationDelegate>
 
 @property(nonatomic, copy)NSURL *url;
-@property(nonatomic)UIWebView *webView;
+@property(nonatomic)WKWebView *webView;
 @property(nonatomic)UIActivityIndicatorView *uiBusy;
 
 -(void)dismiss:(id)sender;
